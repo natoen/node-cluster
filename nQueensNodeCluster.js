@@ -34,7 +34,7 @@ if (cluster.isMaster) {
       cluster.disconnect();
       disconnected = true;
       const time = (Date.now() - timeStarted) / 1000;
-      console.log(`We have found ${count} solution${(count > 1 ? 's' : '')} time: ${time} seconds`);
+      console.log(`${count} solution${(count > 1 ? 's' : '')} (time: ${time} seconds)`);
     }
   });
 } else {

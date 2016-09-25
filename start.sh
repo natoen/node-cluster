@@ -15,7 +15,7 @@ ONE=false
 
 printf "${BOLD}Node Cluster${COLORLESS}\n"
 printf "${GREEN}0${CYAN}: I/O\n"
-printf "${GREEN}1${CYAN}: N-Queen\n"
+printf "${GREEN}1${CYAN}: N-Queens\n"
 printf "${GREEN}2${CYAN}: both\n\n"
 
 read -p "${MAGENTA}Please select input:${GREEN} " INPUT

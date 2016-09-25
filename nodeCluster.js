@@ -7,18 +7,21 @@ const getTime = () => {
   return `${secs}.${milli}`;
 };
 
+const messageHandler = (worker) => // listens for messages coming from worker
+    (msg) => {
+      if (msg === 'exit') {
+        worker.kill();
+        console.log(`Worker #${worker.process.pid} exiting ${getTime()}`);
+      }
+    };
+
 if (cluster.isMaster) { // We start the workers here
   for (let i = 0; i < cpus; i++) {
     const worker = cluster.fork();
 
     console.log(`Starting worker #${worker.process.pid} ${getTime()}`);
 
-    worker.on('message', message => { // listens for messages coming from worker
-      if (message === 'exit') {
-        worker.kill();
-        console.log(`Worker #${worker.process.pid} exiting ${getTime()}`);
-      }
-    });
+    worker.on('message', messageHandler(worker));
   }
 
   // listener when a worker is 'fully' running

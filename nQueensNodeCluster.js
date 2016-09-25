@@ -1,6 +1,6 @@
 const cluster = require('cluster');
 const os = require('os');
-const board = Math.pow(2, 4) - 1;
+const board = Math.pow(2, 16) - 1;
 
 if (cluster.isMaster) {
   const timeStarted = Date.now();
@@ -14,22 +14,22 @@ if (cluster.isMaster) {
     return { minorD: bit << 1, column: bit, majorD: bit >> 1 };
   };
 
-  for (let i = 0; i < os.cpus().length; i++) {
-    if (position) {
-      const worker = cluster.fork();
+  const messageHandler = (worker) =>
+    (msg) => {
+      if (msg === 'solving' && position) worker.send(currentBit());
+      else if (msg === 'solution') count++;
+      else worker.kill();
+    };
 
-      worker.send(currentBit());
-      worker.on('message', message => {
-        if (message === 'solving' && position) worker.send(currentBit());
-        else if (message === 'solution') count++;
-        else worker.kill();
-      });
-    }
+  for (let i = 0; i < os.cpus().length && position; i++) {
+    const worker = cluster.fork();
+
+    worker.send(currentBit());
+    worker.on('message', messageHandler(worker));
   }
 
+  let disconnected = false;
   cluster.on('exit', () => {
-    let disconnected = false;
-
     if (!Object.keys(cluster.workers).length && !disconnected) {
       cluster.disconnect();
       disconnected = true;
